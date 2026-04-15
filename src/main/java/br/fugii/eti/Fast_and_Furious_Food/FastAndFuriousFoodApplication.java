@@ -9,5 +9,5 @@ public class FastAndFuriousFoodApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(FastAndFuriousFoodApplication.class, args);
 	}
-
+        
 }
