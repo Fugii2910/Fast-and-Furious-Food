@@ -11,13 +11,13 @@ public class Produto {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     
-    private double qtd;
+    
     private double preco;
     
     @NotBlank 
-    private String name;
+    private String nome;
     
     @NotBlank
     private String descricao;
@@ -28,10 +28,10 @@ public class Produto {
     public Produto() {
     }
 
-    public Produto(long id, String name, double qtd, double preco, String descricao, String categoria) {
+    public Produto(long id, String nome, double preco, String descricao, String categoria) {
         this.id = id;
-        this.name = name;
-        this.qtd = qtd;
+        this.nome = nome;
+        
         this.preco = preco;
         this.descricao = descricao;
         this.categoria = categoria;
@@ -61,20 +61,12 @@ public class Produto {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getNome() {
+        return nome;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public double getQtd() {
-        return qtd;
-    }
-
-    public void setQtd(double qtd) {
-        this.qtd = qtd;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
     public double getPreco() {
