@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 
 @Entity
 public class Produto {
@@ -13,7 +14,7 @@ public class Produto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    
+    @Positive
     private double preco;
     
     @NotBlank 
@@ -28,7 +29,7 @@ public class Produto {
     public Produto() {
     }
 
-    public Produto(long id, String nome, double preco, String descricao, String categoria) {
+    public Produto(Long id, String nome, double preco, String descricao, String categoria) {
         this.id = id;
         this.nome = nome;
         
@@ -53,11 +54,11 @@ public class Produto {
         this.categoria = categoria;
     }
     
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

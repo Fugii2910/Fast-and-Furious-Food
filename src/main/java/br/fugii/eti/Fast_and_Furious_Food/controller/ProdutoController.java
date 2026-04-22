@@ -6,6 +6,7 @@ import br.fugii.eti.Fast_and_Furious_Food.service.ProdutoService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,9 +36,9 @@ public class ProdutoController {
 
     // Busca os produtos por id e nome
     @GetMapping("/produtos/{produtosID}")
-    public ResponseEntity<Produto> buscar(@PathVariable Long produtoID) {
+    public ResponseEntity<Produto> buscar(@PathVariable Long produtosID) {
 
-        Optional<Produto> produto = produtoRepository.findById(produtoID);
+        Optional<Produto> produto = produtoRepository.findById(produtosID);
 
         if (produto.isPresent()) {
             return ResponseEntity.ok(produto.get());
@@ -54,26 +55,35 @@ public class ProdutoController {
         return produtoService.salvar(produto);
     }
 
-    @PutMapping("/produtos/{produtosID}")
-    public ResponseEntity<Produto> atualizar(@Valid @PathVariable Long produtoID, @RequestBody Produto produto) {
+    @PutMapping("/produtos/{id}")
+    public ResponseEntity<Produto> atualizar(@PathVariable Long id, @RequestBody Produto produto) {
+        // 1. Buscamos o produto que já existe no banco
+        Optional<Produto> produtoAtualOpt = produtoRepository.findById(id);
 
-        if (!produtoRepository.existsById(produtoID)) {
-            return ResponseEntity.notFound().build();
+        if (produtoAtualOpt.isPresent()) {
+            Produto produtoAtual = produtoAtualOpt.get();
+
+            // 2. Copiamos as propriedades que vieram no JSON para o objeto do banco
+            // O terceiro parâmetro "id" serve para NÃO sobrescrever o ID original
+            BeanUtils.copyProperties(produto, produtoAtual, "id");
+
+            // 3. Salvamos através do service para rodar sua validação de nome
+            Produto salvo = produtoService.salvar(produtoAtual);
+            return ResponseEntity.ok(salvo);
         }
-        produto.setId(produtoID);
-        produto = produtoService.salvar(produto);
-        return ResponseEntity.ok(produto);
+
+        return ResponseEntity.notFound().build();
     }
-    
-     @DeleteMapping("/produtos/{produtosID}")
-    public ResponseEntity<Void> excluir(@PathVariable Long produtoID) {
 
-        if (!produtoRepository.existsById(produtoID)) {
+    @DeleteMapping("/produtos/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+
+        if (!produtoRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
 
-        produtoService.excluir(produtoID);
+        produtoService.excluir(id);
         return ResponseEntity.noContent().build();
     }
-    
+
 }
