@@ -2,7 +2,9 @@ package br.fugii.eti.Fast_and_Furious_Food.service;
 
 import br.fugii.eti.Fast_and_Furious_Food.domain.model.Pedido;
 import br.fugii.eti.Fast_and_Furious_Food.domain.model.Produto;
+import br.fugii.eti.Fast_and_Furious_Food.domain.model.StatusPedido;
 import br.fugii.eti.Fast_and_Furious_Food.repository.PedidoRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,8 @@ public class PedidoService {
     }
      
      public Pedido salvar(Pedido pedido) {
+         pedido.setStatusPedido(StatusPedido.ABERTO);
+         pedido.setDtAberto(LocalDateTime.now());
         return pedidoRepository.save(pedido);
     }
     

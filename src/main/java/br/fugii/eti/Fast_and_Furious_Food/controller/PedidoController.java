@@ -28,13 +28,13 @@ public class PedidoController {
     @Autowired
     private PedidoService pedidoService;
     
-     // Lista os produtos
+     // Lista os pedidos
     @GetMapping("/pedidos")
     public List<Pedido> lista() {
         return pedidoService.listar();
     }
     
-     //adicionar os produtos
+     //adicionar os pedidos
     @PostMapping("/pedidos")
     @ResponseStatus(HttpStatus.CREATED)
     public Pedido adicionar(@RequestBody Pedido pedido) {
@@ -43,7 +43,7 @@ public class PedidoController {
     
     @PutMapping("/pedidos/{id}")
     public ResponseEntity<Pedido> atualizar(@PathVariable Long id, @RequestBody Pedido pedido) {
-        // 1. Buscamos o produto que já existe no banco
+        // 1. Buscamos o pedido que já existe no banco
         Optional<Pedido> pedidoAtualOpt = pedidoRepository.findById(id);
 
         if (pedidoAtualOpt.isPresent()) {
