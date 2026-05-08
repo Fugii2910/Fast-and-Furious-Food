@@ -15,16 +15,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @Service
 public class PedidoService {
- 
+
     @Autowired
     private PedidoRepository pedidoRepository;
 
-    
-     public List<Pedido> listar() {
+    public List<Pedido> listar() {
         return pedidoRepository.findAll();
     }
-    
-     // Busca os produtos por id e nome
+
+    // Busca os produtos por id e nome
     @GetMapping("/pedidos/{pedidosID}")
     public ResponseEntity<Pedido> buscar(@PathVariable Long pedidosID) {
 
@@ -36,15 +35,38 @@ public class PedidoService {
             return ResponseEntity.notFound().build();
         }
     }
-     
-     public Pedido salvar(Pedido pedido) {
-         pedido.setStatusPedido(StatusPedido.ABERTO);
-         pedido.setDtAberto(LocalDateTime.now());
-        return pedidoRepository.save(pedido);
+
+    public Optional<Pedido> atualizarStatus(Long id, StatusPedido novoStatus) {
+
+        Optional<Pedido> optPedido = pedidoRepository.findById(id);
+
+        if (optPedido.isEmpty()) {
+            return optPedido;
+        }
+
+        Pedido pedidoAntigo = optPedido.get();
+
+        if (novoStatus == StatusPedido.PRONTO && pedidoAntigo.getStatusPedido() == StatusPedido.ABERTO) {
+            pedidoAntigo.setStatusPedido(StatusPedido.PRONTO);
+            pedidoAntigo.setDtPronto(LocalDateTime.now());
+        } else if (novoStatus == StatusPedido.ENTREGUE && pedidoAntigo.getStatusPedido() == StatusPedido.PRONTO) {
+            pedidoAntigo.setStatusPedido(StatusPedido.ENTREGUE);
+            pedidoAntigo.setDtEntregue(LocalDateTime.now());
+        } else {
+            throw new RuntimeException("Status " + novoStatus + "não pode ser aplicado em " + pedidoAntigo);
+        }
+
+        optPedido = Optional.of(pedidoRepository.save(pedidoAntigo));
+
+        return optPedido;
+
     }
-    
-     public void excluir(Long pedidoId) {
+
+    public void excluir(Long pedidoId) {
         pedidoRepository.deleteById(pedidoId);
     }
-     
+    
+    public Pedido salvar(Pedido pedido) {
+        return pedidoRepository.save(pedido);
+    }
 }

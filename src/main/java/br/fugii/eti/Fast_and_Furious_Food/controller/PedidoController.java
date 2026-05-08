@@ -2,8 +2,10 @@ package br.fugii.eti.Fast_and_Furious_Food.controller;
 
 import br.fugii.eti.Fast_and_Furious_Food.domain.model.Pedido;
 import br.fugii.eti.Fast_and_Furious_Food.domain.model.Produto;
+import br.fugii.eti.Fast_and_Furious_Food.domain.model.StatusPedido;
 import br.fugii.eti.Fast_and_Furious_Food.repository.PedidoRepository;
 import br.fugii.eti.Fast_and_Furious_Food.service.PedidoService;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.BeanUtils;
@@ -21,46 +23,37 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class PedidoController {
-    
+
     @Autowired
     private PedidoRepository pedidoRepository;
 
     @Autowired
     private PedidoService pedidoService;
-    
-     // Lista os pedidos
+
+    // Lista os pedidos
     @GetMapping("/pedidos")
     public List<Pedido> lista() {
         return pedidoService.listar();
     }
-    
-     //adicionar os pedidos
+
+    //adicionar os pedidos
     @PostMapping("/pedidos")
     @ResponseStatus(HttpStatus.CREATED)
     public Pedido adicionar(@RequestBody Pedido pedido) {
         return pedidoService.salvar(pedido);
     }
-    
+
     @PutMapping("/pedidos/{id}")
-    public ResponseEntity<Pedido> atualizar(@PathVariable Long id, @RequestBody Pedido pedido) {
-        // 1. Buscamos o pedido que já existe no banco
-        Optional<Pedido> pedidoAtualOpt = pedidoRepository.findById(id);
+    public ResponseEntity<Pedido> atualizar(@Valid @PathVariable Long id, @RequestBody StatusPedido statusPedido) {
 
-        if (pedidoAtualOpt.isPresent()) {
-            Pedido pedidoAtual = pedidoAtualOpt.get();
+        Optional<Pedido> pedidoAtualOpt = pedidoService.atualizarStatus(id, statusPedido);
 
-            // 2. Copiamos as propriedades que vieram no JSON para o objeto do banco
-            // O terceiro parâmetro "id" serve para NÃO sobrescrever o ID original
-            BeanUtils.copyProperties(pedido, pedidoAtual, "id");
-
-            // 3. Salvamos através do service para rodar sua validação de nome
-            Pedido salvo = pedidoService.salvar(pedidoAtual);
-            return ResponseEntity.ok(salvo);
+        if (pedidoAtualOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
-
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(pedidoAtualOpt.get());
     }
-    
+
     @DeleteMapping("/pedidos/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
 
@@ -71,5 +64,5 @@ public class PedidoController {
         pedidoService.excluir(id);
         return ResponseEntity.noContent().build();
     }
-    
+
 }

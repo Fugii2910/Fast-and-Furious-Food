@@ -63,11 +63,8 @@ public class ProdutoController {
         if (produtoAtualOpt.isPresent()) {
             Produto produtoAtual = produtoAtualOpt.get();
 
-            // 2. Copiamos as propriedades que vieram no JSON para o objeto do banco
-            // O terceiro parâmetro "id" serve para NÃO sobrescrever o ID original
             BeanUtils.copyProperties(produto, produtoAtual, "id");
 
-            // 3. Salvamos através do service para rodar sua validação de nome
             Produto salvo = produtoService.salvar(produtoAtual);
             return ResponseEntity.ok(salvo);
         }
