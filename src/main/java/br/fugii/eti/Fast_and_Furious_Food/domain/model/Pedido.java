@@ -4,6 +4,8 @@
  */
 package br.fugii.eti.Fast_and_Furious_Food.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,116 +13,119 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
 @Entity
 public class Pedido {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+     @Id
+    @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private String cliente;
-    private String cpf;
-    private LocalDateTime dtAberto;
-    private LocalDateTime dtPronto;
-    private LocalDateTime dtEntregue;
+    
+    private Integer tknumero; //numero do ticket
     
     @Enumerated(EnumType.STRING)
-    @Column(name = "status_pedido")
-    private StatusPedido statusPedido;
+    private StatusPedido status;
+    
+    private LocalDateTime dataHora;
+    
+    @JsonManagedReference
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemPedido> itens = new ArrayList<>();
+    
+    public void adicionarItem(ItemPedido item) {
+        if (item == null){
+        throw new IllegalArgumentException("Item não pode ser nulo");
+        }
+        if (item.getProduto() == null) {
+            throw new IllegalArgumentException("Produto é obrigatório");
+        }
 
+        if (item.getQuantidade() == null || item.getQuantidade() <= 0) {
+            throw new IllegalArgumentException("Quantidade inválida");
+        }
+    
+        //evita duplicidade
+        for (ItemPedido existente : itens) {
+        if (existente.getProduto().equals(item.getProduto())) {
+            existente.setQuantidade(
+                existente.getQuantidade() + item.getQuantidade()
+            );
+            return;
+        }
+    }
+
+    item.setPedido(this);
+    this.itens.add(item);
+    
+    }
+    
+    //total do pedido
+    public Double getTotal() {
+        if(itens == null) return 0.0;
+        return itens.stream()
+            .mapToDouble(i -> i.getPrecoUnitario() * i.getQuantidade())
+            .sum();
+    }
+  
     public Pedido() {
     }
 
-    public Pedido(Long id, String cliente, String cpf, LocalDateTime dtAberto, LocalDateTime dtPronto, LocalDateTime dtEntregue, StatusPedido statusPedido) {
+    public Pedido(Long id, Integer tknumero, StatusPedido status, LocalDateTime dataHora) {
         this.id = id;
-        this.cliente = cliente;
-        this.cpf = cpf;
-        this.dtAberto = dtAberto;
-        this.dtPronto = dtPronto;
-        this.dtEntregue = dtEntregue;
-        this.statusPedido = statusPedido;
+        this.tknumero = tknumero;
+        this.status = status;
+        this.dataHora = dataHora;
     }
+
+   @PrePersist
+   public void prePersist(){
+       this.dataHora = LocalDateTime.now();
+   }
 
     public Long getId() {
         return id;
+    }
+
+    public Integer getTkNumero() {
+        return tknumero;
+    }
+
+    public void setTkNumero(Integer numero) {
+        this.tknumero = numero;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public String getCliente() {
-        return cliente;
+    public StatusPedido getStatus() {
+        return status;
     }
 
-    public void setCliente(String cliente) {
-        this.cliente = cliente;
+    public void setStatus(StatusPedido status) {
+        this.status = status;
     }
 
-    public String getCpf() {
-        return cpf;
+    public LocalDateTime getDataHora() {
+        return dataHora;
     }
 
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
+    public List<ItemPedido> getItens() {
+        return itens;
     }
 
-    public LocalDateTime getDtAberto() {
-        return dtAberto;
-    }
-
-    public void setDtAberto(LocalDateTime dtAberto) {
-        this.dtAberto = dtAberto;
-    }
-
-    public LocalDateTime getDtPronto() {
-        return dtPronto;
-    }
-
-    public void setDtPronto(LocalDateTime dtPronto) {
-        this.dtPronto = dtPronto;
-    }
-
-    public LocalDateTime getDtEntregue() {
-        return dtEntregue;
-    }
-
-    public void setDtEntregue(LocalDateTime dtEntregue) {
-        this.dtEntregue = dtEntregue;
-    }
-
-    public StatusPedido getStatusPedido() {
-        return statusPedido;
-    }
-
-    public void setStatusPedido(StatusPedido statusPedido) {
-        this.statusPedido = statusPedido;
+    public void setItens(List<ItemPedido> itens) {
+        this.itens = itens;
     }
     
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 97 * hash + Objects.hashCode(this.id);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Pedido other = (Pedido) obj;
-        return Objects.equals(this.id, other.id);
-    }
     
+
 }

@@ -1,62 +1,91 @@
 package br.fugii.eti.Fast_and_Furious_Food.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
-
+@Entity
 public class ItemPedido {
     
-    @Id
+     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private double qtd;
+    // relação com pedido
+    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name = "pedido_id")
+    private Pedido pedido;
     
-    private double vUnit;
+    // relação com produto
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "produto_id")
+    private Produto produto;
     
-    private String obs;
+    
+    @NotNull
+    @Positive
+    private Integer quantidade;
+    
+    @NotNull
+    private Double precoUnitario;
 
     public ItemPedido() {
     }
 
-    public ItemPedido(Long id, double qtd, double vUnit, String obs) {
+    public ItemPedido(Long id, Pedido pedido, Produto produto, Integer quantidade, Double precoUnitario) {
         this.id = id;
-        this.qtd = qtd;
-        this.vUnit = vUnit;
-        this.obs = obs;
+        this.pedido = pedido;
+        this.produto = produto;
+        this.quantidade = quantidade;
+        this.precoUnitario = precoUnitario;
     }
 
     public Long getId() {
         return id;
     }
 
+    public Pedido getPedido() {
+        return pedido;
+    }
+
+    public Produto getProduto() {
+        return produto;
+    }
+
+    public Integer getQuantidade() {
+        return quantidade;
+    }
+
+    public Double getPrecoUnitario() {
+        return precoUnitario;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
 
-    public double getQtd() {
-        return qtd;
+    public void setPedido(Pedido pedido) {
+        this.pedido = pedido;
     }
 
-    public void setQtd(double qtd) {
-        this.qtd = qtd;
+    public void setProduto(Produto produto) {
+        this.produto = produto;
     }
 
-    public double getvUnit() {
-        return vUnit;
+    public void setQuantidade(Integer quantidade) {
+        this.quantidade = quantidade;
     }
 
-    public void setvUnit(double vUnit) {
-        this.vUnit = vUnit;
-    }
-
-    public String getObs() {
-        return obs;
-    }
-
-    public void setObs(String obs) {
-        this.obs = obs;
+    public void setPrecoUnitario(Double precoUnitario) {
+        this.precoUnitario = precoUnitario;
     }
     
     
